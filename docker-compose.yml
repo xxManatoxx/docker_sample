@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+  postgres:
+    image:  postgres:14
+    container_name: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - posgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=passw0rd
+      - TZ=Asia/Tokyo
+      - PGTZ=Asia/Tokyo
+  front:
+    build: ./front
+    container_name: front
+    volumes:
+      - ./front:/front
+    command: sh -c "cd react-app yarn start"
+    ports:
+      - 3000:3000
+    tty: true
+    stdin_open: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+  api:
+    build: ./api
+    container_name: api
+    command: bash -c "bundle exec rails s -p 8000"
+    environment:
+      - TZ=Asia/Tokyo
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./api:/api
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+volumes:
+  posgres-data:
